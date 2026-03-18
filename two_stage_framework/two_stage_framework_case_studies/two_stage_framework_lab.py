@@ -13,6 +13,20 @@ from Forward_Greedy_Allocator import Forward_Greedy_Allocator
 from Reverse_Greedy_Allocator import Reverse_Greedy_Allocator
 from Brute_Force_Allocator import Brute_Force_Allocator
 
+# import sys
+# sys.path.append("/Users/ether/Desktop/Mycoding/sycabot_ros/sycabot_fire_rescue/sycabot_fire_rescue")
+
+# from Gridworld import Gridworld
+# from Obstacle_Goal import add_obstacles
+
+# gridworld = Gridworld(...)   # 여기 생성자 인자는 네 환경에 맞춰야 함
+# grid_size = gridworld.get_dim()
+
+# obstacles_2d = np.zeros(grid_size)
+# obstacles_2d = add_obstacles(gridworld, obstacles_2d)
+
+# parameters.map = obstacles_2d.T.astype(int)
+
 try:
     from shapely.geometry import MultiLineString, Point
 
@@ -220,26 +234,26 @@ example_name = "lab_case_study_2r_lowfire"
 parameters = Parameters(name=example_name)
 open_case_study = False
 
-gridworld, parameters.map = build_lab_obstacle_map(width=16, height=32)
+gridworld, parameters.map = build_lab_obstacle_map(width=16, height=32) #size of map
 
-target_world_points = [(-1.05, 2.15), (0.65, -1.55)]
+target_world_points = [(-1.05, 2.15), (0.65, -1.55)] # init.points of tasks
 parameters.targets = world_points_to_free_cells(gridworld, parameters.map, target_world_points)
 parameters.task_ids = ["i", "ii"]
 
-robot_world_points = [(0.65, 2.75), (-1.35, 1.15)]
+robot_world_points = [(0.65, 2.75), (-1.35, 1.15)] #2 robots, init.point of robots
 parameters.robot_positions = world_points_to_free_cells(gridworld, parameters.map, robot_world_points)
-parameters.robot_ids = ["1", "2"]
+parameters.robot_ids = ["1", "2"] # #of robots
 parameters.robot_linestyles = [(0, ()), (0, (3, 3))]
 
-hazard_world_points = [(0.2, -2.4)]
+hazard_world_points = [(0.2, -2.4)]  #randomly generated point
 parameters.y_0 = [[c] for c in world_points_to_free_cells(gridworld, parameters.map, hazard_world_points)]
 parameters.hazard_ids = ["a"]
-parameters.p_f = [0.05]
+parameters.p_f = [0.05] #spread rate 
 
 parameters.goal = build_exit_cells(gridworld, parameters.map)
 
 parameters.E = 1200
-parameters.N = 50
+parameters.N = 50 #timesteps (k =50)
 parameters.p_stay = 0
 
 parameters.generate_obsticles()
