@@ -20,6 +20,11 @@ from experiment_runner import (
     repeat_same_setting,
     results_to_list_of_dicts,
 )
+from plot_utils import (
+    plot_hazard_count_success_boxplot,
+    plot_pf_success_boxplot,
+    show_all_plots,
+)
 
 # ============================================================
 # run_success_experiment.py
@@ -174,16 +179,25 @@ def main():
     # Run both 2-a and 2-b
 
     print("[2-a] Running hazard-count success experiment")
-    hazard_summary_df, _ = run_hazard_count_success_experiment()
+    hazard_summary_df, hazard_raw_df = run_hazard_count_success_experiment()
 
     print("\n[2-a] Hazard-count success summary")
     print(hazard_summary_df)
 
     print("\n[2-b] Running p_f success experiment")
-    pf_summary_df, _ = run_pf_success_experiment()
+    pf_summary_df, pf_raw_df = run_pf_success_experiment()
 
     print("\n[2-b] p_f success summary")
     print(pf_summary_df)
+
+    if not hazard_raw_df.empty:
+        plot_hazard_count_success_boxplot(hazard_raw_df)
+
+    if not pf_raw_df.empty:
+        plot_pf_success_boxplot(pf_raw_df)
+
+    if not hazard_raw_df.empty or not pf_raw_df.empty:
+        show_all_plots()
 
 
 if __name__ == "__main__":
