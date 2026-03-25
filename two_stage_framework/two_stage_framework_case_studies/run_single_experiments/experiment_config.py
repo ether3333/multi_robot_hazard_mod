@@ -36,7 +36,7 @@ VERBOSE = True
 # Seeds
 # 2-a and 2-b must use the same seeds
 # -----------------------------
-SHARED_SUCCESS_SEEDS = [0, 1, 2, 3, 4] # modified to increase number of trials
+SHARED_SUCCESS_SEEDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] # modified to increase number of trials
 
 # Separate seeds for time experiments
 TIME_EXPERIMENT_SEEDS = [0]
@@ -114,7 +114,7 @@ SUCCESS_HAZARD_FIXED_P_F = DEFAULT_P_F
 # Keep agents, tasks, map, and hazard count fixed
 # Change only p_f
 # -----------------------------
-SUCCESS_PF_LIST = [0.004, 0.012]
+SUCCESS_PF_LIST = [0.01, 0.015, 0.02, 0.025]
 
 SUCCESS_PF_FIXED_NUM_AGENTS = DEFAULT_NUM_AGENTS
 SUCCESS_PF_FIXED_NUM_TASKS = DEFAULT_NUM_TASKS
