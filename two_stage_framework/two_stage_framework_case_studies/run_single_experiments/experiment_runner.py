@@ -202,8 +202,24 @@ def _call_existing_single_experiment(exp_input: ExperimentInput) -> dict[str, An
     # )
     # --------------------------------------------------------
 
-    raise NotImplementedError(
-        "Connect _call_existing_single_experiment() to your real planner function."
+    import sys
+    from pathlib import Path
+
+    case_study_dir = Path(__file__).resolve().parent.parent
+    case_study_dir_str = str(case_study_dir)
+    if case_study_dir_str not in sys.path:
+        sys.path.insert(0, case_study_dir_str)
+
+    from two_stage_framework_lab import run_single_experiment
+
+    return run_single_experiment(
+        seed=exp_input.seed,
+        num_agents=exp_input.num_agents,
+        num_tasks=exp_input.num_tasks,
+        map_width=exp_input.map_width,
+        map_height=exp_input.map_height,
+        num_hazards=exp_input.num_hazards,
+        p_f=exp_input.p_f,
     )
 
 

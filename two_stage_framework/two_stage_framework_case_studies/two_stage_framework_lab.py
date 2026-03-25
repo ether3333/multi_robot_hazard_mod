@@ -1,31 +1,17 @@
 import os
-import pickle
+import time
 import warnings
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 
 from Parameters import Parameters
-from Drawer import Drawer
 from Matrix import Matrix
 from Path_Planner import Path_Planner
 from Function_Frame import Function_Frame
 from Forward_Greedy_Allocator import Forward_Greedy_Allocator
 from Reverse_Greedy_Allocator import Reverse_Greedy_Allocator
-from Brute_Force_Allocator import Brute_Force_Allocator
-
-# import sys
-# sys.path.append("/Users/ether/Desktop/Mycoding/sycabot_ros/sycabot_fire_rescue/sycabot_fire_rescue")
-
-# from Gridworld import Gridworld
-# from Obstacle_Goal import add_obstacles
-
-# gridworld = Gridworld(...)   # 여기 생성자 인자는 네 환경에 맞춰야 함
-# grid_size = gridworld.get_dim()
-
-# obstacles_2d = np.zeros(grid_size)
-# obstacles_2d = add_obstacles(gridworld, obstacles_2d)
-
-# parameters.map = obstacles_2d.T.astype(int)
 
 try:
     from shapely.geometry import MultiLineString, Point
@@ -35,7 +21,6 @@ except Exception:
     SHAPELY_AVAILABLE = False
 
 
-# Parameter Functions
 def generate_Tau_X(self):
     p_stay = self.p_stay
 
@@ -132,6 +117,14 @@ LAB_EXIT_LINES = [
     [[0.001, 3.001], [1.051, 3.001]],
 ]
 
+ROBOT_LINESTYLES = [
+    (0, ()),
+    (0, (3, 3)),
+    (0, (1, 2)),
+    (0, (5, 2)),
+    (0, (3, 1, 1, 1)),
+]
+
 
 def point_segment_distance(px, py, ax, ay, bx, by):
     abx = bx - ax
@@ -180,8 +173,8 @@ def build_lab_obstacle_map(width=30, height=60):
     gridworld = LabGridworld(width, height)
     obstacles_xy = np.zeros((width, height), dtype=int)
     add_points(gridworld, obstacles_xy, LAB_OBSTACLE_LINES)
-    # framework expects map[y, x]
     return gridworld, obstacles_xy.T.astype(int)
+
 
 def build_exit_cells(gridworld, map_yx):
     width, height = gridworld.get_dim()
@@ -189,7 +182,6 @@ def build_exit_cells(gridworld, map_yx):
     add_points(gridworld, exits_xy, LAB_EXIT_LINES, obst=map_yx.T)
     exit_cells = [(x, y) for x in range(width) for y in range(height) if exits_xy[x, y] == 1]
     if len(exit_cells) == 0:
-        # Fallback: use nearest free cell to each exit-segment midpoint.
         midpoints = [((e[0][0] + e[1][0]) / 2.0, (e[0][1] + e[1][1]) / 2.0) for e in LAB_EXIT_LINES]
         return world_points_to_free_cells(gridworld, map_yx, midpoints)
     return sorted(list(set(exit_cells)))
@@ -229,128 +221,167 @@ def world_points_to_free_cells(gridworld, map_yx, points):
     return out
 
 
-# Parameters
-example_name = "lab_case_study_2r_lowfire"
-parameters = Parameters(name=example_name)
-open_case_study = False
+def _make_experiment_name(seed, num_agents, num_tasks, map_width, map_height, num_hazards, p_f):
+    p_f_tag = str(p_f).replace(".", "p")
+    return (
+        f"lab_exp_seed{seed}_a{num_agents}_t{num_tasks}_"
+        f"m{map_width}x{map_height}_h{num_hazards}_pf{p_f_tag}"
+    )
 
-gridworld, parameters.map = build_lab_obstacle_map(width=16, height=32) #size of map
 
-target_world_points = [(-1.05, 2.15), (0.65, -1.55)] # init.points of tasks
-parameters.targets = world_points_to_free_cells(gridworld, parameters.map, target_world_points)
-parameters.task_ids = ["i", "ii"]
+def _get_free_cells(map_yx):
+    free_cells_yx = np.argwhere(map_yx == 0)
+    return [(int(x), int(y)) for y, x in free_cells_yx]
 
-robot_world_points = [(0.65, 2.75), (-1.35, 1.15)] #2 robots, init.point of robots
-parameters.robot_positions = world_points_to_free_cells(gridworld, parameters.map, robot_world_points)
-parameters.robot_ids = ["1", "2"] # #of robots
-parameters.robot_linestyles = [(0, ()), (0, (3, 3))]
 
-hazard_world_points = [(0.2, -2.4)]  #randomly generated point
-parameters.y_0 = [[c] for c in world_points_to_free_cells(gridworld, parameters.map, hazard_world_points)]
-parameters.hazard_ids = ["a"]
-parameters.p_f = [0.05] #spread rate 
+def _sample_unique_free_cells(map_yx, count, rng, excluded=None):
+    excluded_cells = set() if excluded is None else set(excluded)
+    candidates = [cell for cell in _get_free_cells(map_yx) if cell not in excluded_cells]
+    if count > len(candidates):
+        raise ValueError(
+            f"Requested {count} unique cells but only {len(candidates)} free cells are available."
+        )
 
-parameters.goal = build_exit_cells(gridworld, parameters.map)
+    order = rng.permutation(len(candidates))[:count]
+    return [candidates[int(idx)] for idx in order]
 
-parameters.E = 1200
-parameters.N = 50 #timesteps (k =50)
-parameters.p_stay = 0
 
-parameters.generate_obsticles()
-parameters.generate_Hazards()
-parameters.generate_Tasks()
-parameters.generate_Robots()
+def _build_parameters(seed, num_agents, num_tasks, map_width, map_height, num_hazards, p_f):
+    rng = np.random.default_rng(seed)
+    example_name = _make_experiment_name(
+        seed=seed,
+        num_agents=num_agents,
+        num_tasks=num_tasks,
+        map_width=map_width,
+        map_height=map_height,
+        num_hazards=num_hazards,
+        p_f=p_f,
+    )
 
-parameters.generate_Tau_X = generate_Tau_X
-parameters.sample_Tau_Ys = sample_Tau_Ys
+    parameters = Parameters(name=example_name)
+    gridworld, parameters.map = build_lab_obstacle_map(width=map_width, height=map_height)
+    parameters.goal = build_exit_cells(gridworld, parameters.map)
 
-parameters_file = {"Read": open_case_study, "Name": "parameters"}
-samples_file = {"Read": open_case_study, "Name": "samples"}
-function_frame_file = {"Read": open_case_study, "Name": "function_frame"}
-solution_file = {"Read": open_case_study, "Name": "solution"}
+    reserved = set(parameters.goal)
+    parameters.robot_positions = _sample_unique_free_cells(parameters.map, num_agents, rng, reserved)
+    reserved.update(parameters.robot_positions)
+    parameters.targets = _sample_unique_free_cells(parameters.map, num_tasks, rng, reserved)
+    reserved.update(parameters.targets)
+    hazard_cells = _sample_unique_free_cells(parameters.map, num_hazards, rng, reserved)
 
-### Main ###
-warnings.filterwarnings("ignore")
+    parameters.task_ids = [f"t{i + 1}" for i in range(num_tasks)]
+    parameters.robot_ids = [str(i + 1) for i in range(num_agents)]
+    parameters.robot_linestyles = [
+        ROBOT_LINESTYLES[i % len(ROBOT_LINESTYLES)] for i in range(num_agents)
+    ]
+    parameters.y_0 = [[cell] for cell in hazard_cells]
+    parameters.hazard_ids = [f"h{i + 1}" for i in range(num_hazards)]
+    parameters.p_f = [p_f for _ in range(num_hazards)]
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(base_dir, "case_studies", example_name)
-if not os.path.exists(path):
-    os.makedirs(path)
+    parameters.E = 1200
+    parameters.N = 50
+    parameters.p_stay = 0
 
-# Parameters
-if parameters_file["Read"]:
-    infile = open(os.path.join(path, parameters_file["Name"]), "rb")
-    parameters = pickle.load(infile)
-    infile.close()
-else:
-    outfile = open(os.path.join(path, parameters_file["Name"]), "wb")
-    pickle.dump(parameters, outfile)
-    outfile.close()
+    parameters.generate_obsticles()
+    parameters.generate_Hazards()
+    parameters.generate_Tasks()
+    parameters.generate_Robots()
+    parameters.generate_Tau_X = generate_Tau_X
+    parameters.sample_Tau_Ys = sample_Tau_Ys
 
-parameters.parameters_file = parameters_file
-parameters.samples_file = samples_file
-parameters.function_frame_file = function_frame_file
-parameters.solution_file = solution_file
+    return parameters
 
-# Setting up
-path_planner = Path_Planner(parameters)
-path_planner.set_up(path + os.sep)
 
-Drawer(path_planner).draw_full_example()
+def _prepare_case_study_dir(parameters):
+    base_dir = Path(__file__).resolve().parent
+    path = base_dir / "case_studies" / parameters.name
+    path.mkdir(parents=True, exist_ok=True)
 
-# Function frame
-if parameters.function_frame_file["Read"]:
-    print("...Reading function frame...")
-    infile = open(os.path.join(path, parameters.function_frame_file["Name"]), "rb")
-    function_frame = pickle.load(infile)
-    infile.close()
-else:
+    parameters.parameters_file = {"Read": False, "Name": "parameters"}
+    parameters.samples_file = {"Read": False, "Name": "samples"}
+    parameters.function_frame_file = {"Read": False, "Name": "function_frame"}
+    parameters.solution_file = {"Read": False, "Name": "solution"}
+
+    return str(path) + os.sep
+
+
+def _extract_success(solution):
+    objective_value = getattr(solution, "objective_value", None)
+    if isinstance(objective_value, dict):
+        group_value = objective_value.get("group", 0.0)
+        return int(float(group_value) > 0.0)
+    return int(float(objective_value) > 0.0)
+
+
+def run_single_experiment(
+    seed: int,
+    num_agents: int,
+    num_tasks: int,
+    map_width: int,
+    map_height: int,
+    num_hazards: int,
+    p_f: float,
+    algorithm: str = "forward_greedy",
+) -> dict[str, Any]:
+    warnings.filterwarnings("ignore")
+
+    parameters = _build_parameters(
+        seed=seed,
+        num_agents=num_agents,
+        num_tasks=num_tasks,
+        map_width=map_width,
+        map_height=map_height,
+        num_hazards=num_hazards,
+        p_f=p_f,
+    )
+    path = _prepare_case_study_dir(parameters)
+
+    setup_start = time.perf_counter()
+    path_planner = Path_Planner(parameters)
+    path_planner.set_up(path)
     function_frame = Function_Frame(parameters, path_planner)
-    print("...Saving function frame...")
-    outfile = open(os.path.join(path, parameters.function_frame_file["Name"]), "wb")
-    pickle.dump(function_frame, outfile)
-    outfile.close()
 
-# Forward greedy
-allocator_fg = Forward_Greedy_Allocator(function_frame)
-if parameters.solution_file["Read"]:
-    infile = open(os.path.join(path, parameters.solution_file["Name"] + "_fg"), "rb")
-    fg_solution = pickle.load(infile)
-    infile.close()
-else:
-    fg_solution = allocator_fg.solve_problem()
-    allocator_fg.postprocess_solution(fg_solution)
-    fg_solution.save_solution(os.path.join(path, parameters.solution_file["Name"] + "_fg"))
-allocator_fg.show_solution(fg_solution)
-
-# Reverse greedy
-allocator_rg = Reverse_Greedy_Allocator(function_frame)
-if parameters.solution_file["Read"]:
-    infile = open(os.path.join(path, parameters.solution_file["Name"] + "_rg"), "rb")
-    rg_solution = pickle.load(infile)
-    infile.close()
-else:
-    rg_solution = allocator_rg.solve_problem()
-    allocator_rg.postprocess_solution(rg_solution)
-    rg_solution.save_solution(os.path.join(path, parameters.solution_file["Name"] + "_rg"))
-allocator_rg.show_solution(rg_solution)
-
-run_brute_force = False
-if run_brute_force:
-    allocator_bf = Brute_Force_Allocator(function_frame)
-    if parameters.solution_file["Read"]:
-        infile = open(os.path.join(path, parameters.solution_file["Name"] + "_bf"), "rb")
-        bf_solution = pickle.load(infile)
-        infile.close()
-        infile = open(os.path.join(path, parameters.solution_file["Name"] + "_worst"), "rb")
-        worst_solution = pickle.load(infile)
-        infile.close()
+    if algorithm == "forward_greedy":
+        allocator = Forward_Greedy_Allocator(function_frame)
+    elif algorithm == "reverse_greedy":
+        allocator = Reverse_Greedy_Allocator(function_frame)
     else:
-        bf_solution, worst_solution = allocator_bf.solve_problem()
-        allocator_bf.postprocess_solution(bf_solution)
-        allocator_bf.postprocess_solution(worst_solution)
-        bf_solution.save_solution(os.path.join(path, parameters.solution_file["Name"] + "_bf"))
-        worst_solution.save_solution(os.path.join(path, parameters.solution_file["Name"] + "_worst"))
+        raise ValueError(f"Unsupported algorithm: {algorithm}")
+    setup_wallclock = time.perf_counter() - setup_start
 
-    allocator_bf.show_solution(bf_solution)
-    allocator_bf.show_solution(worst_solution)
+    solution = allocator.solve_problem()
+    allocator.add_optimal_policies(solution)
+    allocator.add_optimal_paths(solution)
+    allocator.add_group_objective(solution)
+
+    function_frame_time = float(function_frame.instrument.data.get("calculation_time", 0.0))
+    allocator_setup_time = float(solution.time_data.get("setup_time", 0.0))
+    calculation_time = float(solution.time_data.get("calculation_time", 0.0))
+    objective_value = getattr(solution, "objective_value", None)
+    success_rate = objective_value.get("group", None) if isinstance(objective_value, dict) else None
+
+    return {
+        "time_dict": {
+            "setup_time": max(setup_wallclock, function_frame_time + allocator_setup_time),
+            "calculation_time": calculation_time,
+        },
+        "success": _extract_success(solution),
+        "success_rate": success_rate,
+    }
+
+
+def main():
+    result = run_single_experiment(
+        seed=0,
+        num_agents=2,
+        num_tasks=2,
+        map_width=16,
+        map_height=32,
+        num_hazards=1,
+        p_f=0.05,
+    )
+    print(result)
+
+
+if __name__ == "__main__":
+    main()

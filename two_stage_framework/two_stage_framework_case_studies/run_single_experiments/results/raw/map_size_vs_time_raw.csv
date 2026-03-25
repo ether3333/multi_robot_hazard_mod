@@ -1,6 +1,6 @@
 seed,num_agents,num_tasks,map_width,map_height,num_hazards,p_f,setup_time,calculation_time,success,total_runtime,error_message,experiment_type,map_scale,map_ratio_w,map_ratio_h,map_area
-0,3,5,8,16,1,0.012,,,0,1.0420335456728935e-06,Connect _call_existing_single_experiment() to your real planner function.,1b_map_size_time,8,1,2,128
-0,3,5,12,24,1,0.012,,,0,7.50063918530941e-07,Connect _call_existing_single_experiment() to your real planner function.,1b_map_size_time,12,1,2,288
-0,3,5,16,32,1,0.012,,,0,6.25033862888813e-07,Connect _call_existing_single_experiment() to your real planner function.,1b_map_size_time,16,1,2,512
-0,3,5,20,40,1,0.012,,,0,5.419133231043816e-07,Connect _call_existing_single_experiment() to your real planner function.,1b_map_size_time,20,1,2,800
-0,3,5,24,48,1,0.012,,,0,6.669433787465096e-07,Connect _call_existing_single_experiment() to your real planner function.,1b_map_size_time,24,1,2,1152
+0,2,2,8,16,1,0.012,2.1518073081970215,1.1503593921661377,1,2.5745003330521286,,1b_map_size_time,8,1,2,128
+0,2,2,12,24,1,0.012,14.892888069152832,8.265968084335327,1,18.71834033401683,,1b_map_size_time,12,1,2,288
+0,2,2,16,32,1,0.012,62.794190406799316,34.791191816329956,1,77.7451831670478,,1b_map_size_time,16,1,2,512
+0,2,2,20,40,1,0.012,170.48137426376343,94.0595109462738,1,209.2894364169333,,1b_map_size_time,20,1,2,800
+0,2,2,24,48,1,0.012,609.8263094425201,340.4522531032562,1,725.1989086668473,,1b_map_size_time,24,1,2,1152

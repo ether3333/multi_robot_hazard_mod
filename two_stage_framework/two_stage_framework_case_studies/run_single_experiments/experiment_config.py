@@ -36,7 +36,7 @@ VERBOSE = True
 # Seeds
 # 2-a and 2-b must use the same seeds
 # -----------------------------
-SHARED_SUCCESS_SEEDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+SHARED_SUCCESS_SEEDS = [0, 1]
 
 # Separate seeds for time experiments
 TIME_EXPERIMENT_SEEDS = [0]
@@ -45,8 +45,8 @@ TIME_EXPERIMENT_SEEDS = [0]
 # Default environment settings
 # These are the default fixed values
 # -----------------------------
-DEFAULT_NUM_AGENTS = 3
-DEFAULT_NUM_TASKS = 5
+DEFAULT_NUM_AGENTS = 2
+DEFAULT_NUM_TASKS = 2
 
 DEFAULT_MAP_WIDTH = 16
 DEFAULT_MAP_HEIGHT = 32
@@ -73,8 +73,8 @@ FIX_ROBOT_TASK_MAP = True
 # y-axis: number of tasks
 # cell values: setup_time and calculation_time
 # -----------------------------
-TIME_TABLE_AGENT_COUNTS = [1, 2, 3, 4, 5, 6]
-TIME_TABLE_TASK_COUNTS = [2, 4, 6, 8, 10]
+TIME_TABLE_AGENT_COUNTS = [1, 2, 3]
+TIME_TABLE_TASK_COUNTS = [1, 2, 3]
 
 # Fixed values for 1-a
 TIME_TABLE_FIXED_MAP_WIDTH = DEFAULT_MAP_WIDTH
@@ -101,7 +101,7 @@ MAP_TIME_FIXED_P_F = DEFAULT_P_F
 # Keep agents, tasks, map, and p_f fixed
 # Change only the number of hazards
 # -----------------------------
-SUCCESS_HAZARD_COUNT_LIST = [1, 2, 3, 4]
+SUCCESS_HAZARD_COUNT_LIST = [1, 2]
 
 SUCCESS_HAZARD_FIXED_NUM_AGENTS = DEFAULT_NUM_AGENTS
 SUCCESS_HAZARD_FIXED_NUM_TASKS = DEFAULT_NUM_TASKS
@@ -114,7 +114,7 @@ SUCCESS_HAZARD_FIXED_P_F = DEFAULT_P_F
 # Keep agents, tasks, map, and hazard count fixed
 # Change only p_f
 # -----------------------------
-SUCCESS_PF_LIST = [0.002, 0.004, 0.008, 0.012, 0.016, 0.020]
+SUCCESS_PF_LIST = [0.004, 0.012]
 
 SUCCESS_PF_FIXED_NUM_AGENTS = DEFAULT_NUM_AGENTS
 SUCCESS_PF_FIXED_NUM_TASKS = DEFAULT_NUM_TASKS
