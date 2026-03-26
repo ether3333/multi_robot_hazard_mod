@@ -92,14 +92,17 @@ def plot_success_boxplot(
 
     unique_groups = sorted(raw_df[group_col].dropna().unique())
     data = [raw_df.loc[raw_df[group_col] == value, success_col].tolist() for value in unique_groups]
+    medians = [pd.Series(group_data).median() for group_data in data]
+    xpos = range(1, len(unique_groups) + 1)
 
     fig, ax = plt.subplots(figsize=figsize)
 
     ax.boxplot(data, labels=unique_groups)
+    ax.plot(xpos, medians, marker="o", color="red", alpha=0.7)
     ax.set_title(title)
     ax.set_xlabel(xlabel)
-    ax.set_ylabel("Success")
-    ax.grid(True)
+    ax.set_ylabel("Success rate")
+    ax.grid(True, linestyle="--", alpha=0.4)
 
     fig.tight_layout()
 

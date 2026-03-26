@@ -309,8 +309,8 @@ def _extract_success(solution):
     objective_value = getattr(solution, "objective_value", None)
     if isinstance(objective_value, dict):
         group_value = objective_value.get("group", 0.0)
-        return int(float(group_value) > 0.0)
-    return int(float(objective_value) > 0.0)
+        return float(group_value)
+    return float(objective_value)
 
 
 def run_single_experiment(
@@ -365,8 +365,9 @@ def run_single_experiment(
             "setup_time": max(setup_wallclock, function_frame_time + allocator_setup_time),
             "calculation_time": calculation_time,
         },
-        "success": _extract_success(solution),
-        "success_rate": success_rate,
+        # "success": _extract_success(solution),
+        # "success_rate": success_rate,
+        "success": float(success_rate) if success_rate is not None else 0.0,
     }
 
 

@@ -36,7 +36,7 @@ VERBOSE = True
 # Seeds
 # 2-a and 2-b must use the same seeds
 # -----------------------------
-SHARED_SUCCESS_SEEDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] # modified to increase number of trials
+SHARED_SUCCESS_SEEDS = [0, 1, 2, 3, 4, 5, 6, 7] # modified to increase number of trials
 
 # Separate seeds for time experiments
 TIME_EXPERIMENT_SEEDS = [0]
@@ -56,10 +56,10 @@ DEFAULT_MAP_RATIO = (1, 2)
 
 # Default hazard settings
 DEFAULT_NUM_HAZARDS = 1
-DEFAULT_P_F = 0.012
+DEFAULT_P_F = 0.02
 
 # Number of repeated initial conditions
-DEFAULT_NUM_INITIAL_CONDITIONS = 10
+DEFAULT_NUM_INITIAL_CONDITIONS = 2
 
 # Keep hazard positions fixed or not
 FIX_HAZARD_POSITIONS = True
@@ -101,7 +101,7 @@ MAP_TIME_FIXED_P_F = DEFAULT_P_F
 # Keep agents, tasks, map, and p_f fixed
 # Change only the number of hazards
 # -----------------------------
-SUCCESS_HAZARD_COUNT_LIST = [1, 2]
+SUCCESS_HAZARD_COUNT_LIST = [1, 2, 3, 4, 5]
 
 SUCCESS_HAZARD_FIXED_NUM_AGENTS = DEFAULT_NUM_AGENTS
 SUCCESS_HAZARD_FIXED_NUM_TASKS = DEFAULT_NUM_TASKS
@@ -114,7 +114,7 @@ SUCCESS_HAZARD_FIXED_P_F = DEFAULT_P_F
 # Keep agents, tasks, map, and hazard count fixed
 # Change only p_f
 # -----------------------------
-SUCCESS_PF_LIST = [0.01, 0.015, 0.02, 0.025]
+SUCCESS_PF_LIST = [0.02, 0.04, 0.06, 0.08, 0.1]
 
 SUCCESS_PF_FIXED_NUM_AGENTS = DEFAULT_NUM_AGENTS
 SUCCESS_PF_FIXED_NUM_TASKS = DEFAULT_NUM_TASKS

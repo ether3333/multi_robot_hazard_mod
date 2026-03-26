@@ -56,7 +56,7 @@ class ExperimentResult:
     # Measured values
     setup_time: float
     calculation_time: float
-    success: int
+    success: float
 
     # Optional extra info
     total_runtime: float | None = None
@@ -106,7 +106,7 @@ def _default_result_from_input(exp_input: ExperimentInput) -> ExperimentResult:
         p_f=exp_input.p_f,
         setup_time=np.nan,
         calculation_time=np.nan,
-        success=0,
+        success=0.0,
         total_runtime=np.nan,
         error_message=None,
     )
@@ -125,11 +125,11 @@ def _extract_success(raw_result: dict[str, Any]) -> int:
 
     # Case 1: direct success field
     if "success" in raw_result:
-        return int(bool(raw_result["success"]))
+        return float(raw_result["success"])
 
     # Case 2: direct success_rate field
     if "success_rate" in raw_result:
-        return int(float(raw_result["success_rate"]) > 0.0)
+        return float(raw_result["success_rate"])
 
     # Case 3: status string
     if "status" in raw_result:
