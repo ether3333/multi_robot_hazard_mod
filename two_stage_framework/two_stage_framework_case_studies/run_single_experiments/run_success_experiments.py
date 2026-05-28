@@ -12,8 +12,11 @@ from experiment_config import (
     SUCCESS_HAZARD_RAW_FILENAME,
     SUCCESS_PF_LIST,
     SUCCESS_PF_RAW_FILENAME,
+    SUCCESS_TASK_COUNT_LIST,
+    SUCCESS_TASK_RAW_FILENAME,
     get_success_hazard_fixed_config,
     get_success_pf_fixed_config,
+    get_success_task_count_fixed_config,
 )
 
 from experiment_runner import (
@@ -23,15 +26,17 @@ from experiment_runner import (
 from plot_utils import (
     plot_hazard_count_success_boxplot,
     plot_pf_success_boxplot,
+    plot_task_count_success_boxplot,
     show_all_plots,
 )
 
 # ============================================================
 # run_success_experiment.py
-# Run 2-a and 2-b success-rate experiments.
+# Run 2-a, 2-b, and 2-c success-rate experiments.
 # 2-a: number of hazards -> success rate
 # 2-b: p_f -> success rate
-# Both experiments use the same shared seeds.
+# 2-c: number of tasks -> success rate (2 agents fixed)
+# All experiments use the same shared seeds.
 # ============================================================
 
 
@@ -175,29 +180,105 @@ def run_pf_success_experiment():
     return summary_df, raw_df
 
 
+def run_task_count_success_experiment():
+    # Run 2-c
+    # Change only the number of tasks, keep 2 agents fixed
+
+    fixed_cfg = get_success_task_count_fixed_config()
+    raw_frames = []
+
+    for num_tasks in SUCCESS_TASK_COUNT_LIST:
+        results = repeat_same_setting(
+            seeds=fixed_cfg["seeds"],
+            num_agents=fixed_cfg["num_agents"],
+            num_tasks=num_tasks,
+            map_width=fixed_cfg["map_width"],
+            map_height=fixed_cfg["map_height"],
+            num_hazards=fixed_cfg["num_hazards"],
+            p_f=fixed_cfg["p_f"],
+            num_initial_conditions=fixed_cfg.get(
+                "num_initial_conditions",
+                DEFAULT_NUM_INITIAL_CONDITIONS,
+            ),
+            experiment_name="success_vs_task_count",
+        )
+
+        df = _results_to_dataframe(results)
+        df["experiment_type"] = "2c_success_task_count"
+        df["task_count"] = num_tasks
+        raw_frames.append(df)
+
+    raw_df = pd.concat(raw_frames, ignore_index=True) if raw_frames else pd.DataFrame()
+
+    if raw_df.empty:
+        summary_df = pd.DataFrame(
+            columns=[
+                "task_count",
+                "num_trials",
+                "success_rate_mean",
+                "success_count",
+                "failure_count",
+            ]
+        )
+    else:
+        summary_df = (
+            raw_df.groupby("task_count", as_index=False)
+            .agg(
+                num_trials=("success", "size"),
+                success_rate_mean=("success", "mean"),
+                success_count=("success", "sum"),
+            )
+            .sort_values(by="task_count")
+            .reset_index(drop=True)
+        )
+        summary_df["failure_count"] = (
+            summary_df["num_trials"] - summary_df["success_count"]
+        )
+
+    if SAVE_RAW_DATA and not raw_df.empty:
+        raw_df.to_csv(RAW_DIR / SUCCESS_TASK_RAW_FILENAME, index=False)
+
+    if SAVE_TABLES and not summary_df.empty:
+        summary_df.to_csv(
+            TABLES_DIR / "task_count_success_summary.csv",
+            index=False,
+        )
+
+    return summary_df, raw_df
+
+
 def main():
-    # Run both 2-a and 2-b
+    # Run 2-a, 2-b, and 2-c
 
-    print("[2-a] Running hazard-count success experiment")
-    hazard_summary_df, hazard_raw_df = run_hazard_count_success_experiment()
+    # print("[2-a] Running hazard-count success experiment")
+    # hazard_summary_df, hazard_raw_df = run_hazard_count_success_experiment()
 
-    print("\n[2-a] Hazard-count success summary")
-    print(hazard_summary_df)
+    # print("\n[2-a] Hazard-count success summary")
+    # print(hazard_summary_df)
 
-    print("\n[2-b] Running p_f success experiment")
-    pf_summary_df, pf_raw_df = run_pf_success_experiment()
+    # print("\n[2-b] Running p_f success experiment")
+    # pf_summary_df, pf_raw_df = run_pf_success_experiment()
 
-    print("\n[2-b] p_f success summary")
-    print(pf_summary_df)
+    # print("\n[2-b] p_f success summary")
+    # print(pf_summary_df)
 
-    if not hazard_raw_df.empty:
-        plot_hazard_count_success_boxplot(hazard_raw_df)
+    print("\n[2-c] Running task-count success experiment")
+    task_summary_df, task_raw_df = run_task_count_success_experiment()
 
-    if not pf_raw_df.empty:
-        plot_pf_success_boxplot(pf_raw_df)
+    print("\n[2-c] Task-count success summary")
+    print(task_summary_df)
 
-    if not hazard_raw_df.empty or not pf_raw_df.empty:
-        show_all_plots()
+    # if not hazard_raw_df.empty:
+    #     plot_hazard_count_success_boxplot(hazard_raw_df)
+
+    # if not pf_raw_df.empty:
+    #     plot_pf_success_boxplot(pf_raw_df)
+
+    if not task_raw_df.empty:
+        plot_task_count_success_boxplot(task_raw_df)
+
+    # if not hazard_raw_df.empty or not pf_raw_df.empty or not task_raw_df.empty:
+    #     show_all_plots()
 
 
 if __name__ == "__main__":

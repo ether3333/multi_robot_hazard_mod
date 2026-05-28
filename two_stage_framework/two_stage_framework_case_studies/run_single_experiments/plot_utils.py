@@ -7,6 +7,7 @@ from experiment_config import (
     MAP_TIME_FIG_FILENAME,
     SUCCESS_HAZARD_FIG_FILENAME,
     SUCCESS_PF_FIG_FILENAME,
+    SUCCESS_TASK_FIG_FILENAME,
 )
 
 # ============================================================
@@ -138,6 +139,21 @@ def plot_pf_success_boxplot(
         group_col="pf_value",
         title="Success rate vs p_f",
         xlabel="p_f",
+        save_name=save_name,
+    )
+
+
+def plot_task_count_success_boxplot(
+    raw_df: pd.DataFrame,
+    save_name: str = SUCCESS_TASK_FIG_FILENAME,
+):
+    # Plot boxplot for 2-c
+
+    return plot_success_boxplot(
+        raw_df=raw_df,
+        group_col="task_count",
+        title="Success rate vs number of tasks",
+        xlabel="Number of tasks",
         save_name=save_name,
     )
 

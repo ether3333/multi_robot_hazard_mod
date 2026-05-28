@@ -123,6 +123,19 @@ SUCCESS_PF_FIXED_MAP_HEIGHT = DEFAULT_MAP_HEIGHT
 SUCCESS_PF_FIXED_NUM_HAZARDS = DEFAULT_NUM_HAZARDS
 
 # -----------------------------
+# 2-c. Number of tasks vs success rate
+# Keep agents (=2), map, hazards, and p_f fixed
+# Change only the number of tasks
+# -----------------------------
+SUCCESS_TASK_COUNT_LIST = [2, 3, 4, 5]
+
+SUCCESS_TASK_FIXED_NUM_AGENTS = 2
+SUCCESS_TASK_FIXED_MAP_WIDTH = DEFAULT_MAP_WIDTH
+SUCCESS_TASK_FIXED_MAP_HEIGHT = DEFAULT_MAP_HEIGHT
+SUCCESS_TASK_FIXED_NUM_HAZARDS = DEFAULT_NUM_HAZARDS
+SUCCESS_TASK_FIXED_P_F = DEFAULT_P_F
+
+# -----------------------------
 # Output file names
 # -----------------------------
 TIME_TABLE_SETUP_FILENAME = "time_table_setup.csv"
@@ -136,6 +149,9 @@ SUCCESS_HAZARD_FIG_FILENAME = "hazard_count_vs_success_boxplot.png"
 
 SUCCESS_PF_RAW_FILENAME = "pf_vs_success_raw.csv"
 SUCCESS_PF_FIG_FILENAME = "pf_vs_success_boxplot.png"
+
+SUCCESS_TASK_RAW_FILENAME = "task_count_vs_success_raw.csv"
+SUCCESS_TASK_FIG_FILENAME = "task_count_vs_success_boxplot.png"
 
 # -----------------------------
 # Helper functions
@@ -192,6 +208,19 @@ def get_success_pf_fixed_config() -> dict:
         "map_width": SUCCESS_PF_FIXED_MAP_WIDTH,
         "map_height": SUCCESS_PF_FIXED_MAP_HEIGHT,
         "num_hazards": SUCCESS_PF_FIXED_NUM_HAZARDS,
+        "seeds": SHARED_SUCCESS_SEEDS,
+        "num_initial_conditions": DEFAULT_NUM_INITIAL_CONDITIONS,
+    }
+
+
+def get_success_task_count_fixed_config() -> dict:
+    # Fixed settings for 2-c
+    return {
+        "num_agents": SUCCESS_TASK_FIXED_NUM_AGENTS,
+        "map_width": SUCCESS_TASK_FIXED_MAP_WIDTH,
+        "map_height": SUCCESS_TASK_FIXED_MAP_HEIGHT,
+        "num_hazards": SUCCESS_TASK_FIXED_NUM_HAZARDS,
+        "p_f": SUCCESS_TASK_FIXED_P_F,
         "seeds": SHARED_SUCCESS_SEEDS,
         "num_initial_conditions": DEFAULT_NUM_INITIAL_CONDITIONS,
     }
