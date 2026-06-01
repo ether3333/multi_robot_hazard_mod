@@ -57,6 +57,7 @@ class ExperimentResult:
     setup_time: float
     calculation_time: float
     success: float
+    tasks_rescued_pct: float = 0.0
 
     # Optional extra info
     total_runtime: float | None = None
@@ -161,6 +162,7 @@ def _normalize_raw_result(
         result.calculation_time = _extract_float(raw_result.get("calculation_time", np.nan))
 
     result.success = _extract_success(raw_result)
+    result.tasks_rescued_pct = _extract_float(raw_result.get("tasks_rescued_pct", 0.0))
     result.total_runtime = total_runtime
     result.error_message = raw_result.get("error_message", None)
 

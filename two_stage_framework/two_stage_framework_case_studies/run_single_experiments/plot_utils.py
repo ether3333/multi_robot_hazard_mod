@@ -8,6 +8,9 @@ from experiment_config import (
     SUCCESS_HAZARD_FIG_FILENAME,
     SUCCESS_PF_FIG_FILENAME,
     SUCCESS_TASK_FIG_FILENAME,
+    TASKS_RESCUED_HAZARD_FIG_FILENAME,
+    TASKS_RESCUED_PF_FIG_FILENAME,
+    TASKS_RESCUED_TASK_FIG_FILENAME,
 )
 
 # ============================================================
@@ -153,6 +156,78 @@ def plot_task_count_success_boxplot(
         raw_df=raw_df,
         group_col="task_count",
         title="Success rate vs number of tasks",
+        xlabel="Number of tasks",
+        save_name=save_name,
+    )
+
+
+def plot_tasks_rescued_boxplot(
+    raw_df: pd.DataFrame,
+    group_col: str,
+    title: str,
+    xlabel: str,
+    save_name: str,
+    tasks_rescued_col: str = "tasks_rescued_pct",
+    figsize: tuple[int, int] = (8, 5),
+):
+    # Plot a boxplot for mean tasks rescued per trial, grouped by the x-axis variable
+
+    unique_groups = sorted(raw_df[group_col].dropna().unique())
+    data = [raw_df.loc[raw_df[group_col] == value, tasks_rescued_col].tolist() for value in unique_groups]
+    medians = [pd.Series(group_data).median() for group_data in data]
+    xpos = range(1, len(unique_groups) + 1)
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    ax.boxplot(data, labels=unique_groups)
+    ax.plot(xpos, medians, marker="o", color="red", alpha=0.7)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel("Tasks rescued (%)")
+    ax.grid(True, linestyle="--", alpha=0.4)
+
+    fig.tight_layout()
+
+    if SAVE_FIGURES:
+        fig.savefig(FIGURES_DIR / save_name, dpi=300, bbox_inches="tight")
+
+    return fig, ax
+
+
+def plot_hazard_count_tasks_rescued_boxplot(
+    raw_df: pd.DataFrame,
+    save_name: str = TASKS_RESCUED_HAZARD_FIG_FILENAME,
+):
+    return plot_tasks_rescued_boxplot(
+        raw_df=raw_df,
+        group_col="hazard_count",
+        title="Mean tasks rescued vs number of hazards",
+        xlabel="Number of hazards",
+        save_name=save_name,
+    )
+
+
+def plot_pf_tasks_rescued_boxplot(
+    raw_df: pd.DataFrame,
+    save_name: str = TASKS_RESCUED_PF_FIG_FILENAME,
+):
+    return plot_tasks_rescued_boxplot(
+        raw_df=raw_df,
+        group_col="pf_value",
+        title="Mean tasks rescued vs p_f",
+        xlabel="p_f",
+        save_name=save_name,
+    )
+
+
+def plot_task_count_tasks_rescued_boxplot(
+    raw_df: pd.DataFrame,
+    save_name: str = TASKS_RESCUED_TASK_FIG_FILENAME,
+):
+    return plot_tasks_rescued_boxplot(
+        raw_df=raw_df,
+        group_col="task_count",
+        title="Mean tasks rescued vs number of tasks",
         xlabel="Number of tasks",
         save_name=save_name,
     )

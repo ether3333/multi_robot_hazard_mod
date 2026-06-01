@@ -27,6 +27,9 @@ from plot_utils import (
     plot_hazard_count_success_boxplot,
     plot_pf_success_boxplot,
     plot_task_count_success_boxplot,
+    plot_hazard_count_tasks_rescued_boxplot,
+    plot_pf_tasks_rescued_boxplot,
+    plot_task_count_tasks_rescued_boxplot,
     show_all_plots,
 )
 
@@ -84,6 +87,7 @@ def run_hazard_count_success_experiment():
                 "success_rate_mean",
                 "success_count",
                 "failure_count",
+                "tasks_rescued_pct",
             ]
         )
     else:
@@ -93,6 +97,7 @@ def run_hazard_count_success_experiment():
                 num_trials=("success", "size"),
                 success_rate_mean=("success", "mean"),
                 success_count=("success", "sum"),
+                tasks_rescued_pct=("tasks_rescued_pct", "mean"),
             )
             .sort_values(by="hazard_count")
             .reset_index(drop=True)
@@ -151,6 +156,7 @@ def run_pf_success_experiment():
                 "success_rate_mean",
                 "success_count",
                 "failure_count",
+                "tasks_rescued_pct",
             ]
         )
     else:
@@ -160,6 +166,7 @@ def run_pf_success_experiment():
                 num_trials=("success", "size"),
                 success_rate_mean=("success", "mean"),
                 success_count=("success", "sum"),
+                tasks_rescued_pct=("tasks_rescued_pct", "mean"),
             )
             .sort_values(by="pf_value")
             .reset_index(drop=True)
@@ -218,6 +225,7 @@ def run_task_count_success_experiment():
                 "success_rate_mean",
                 "success_count",
                 "failure_count",
+                "tasks_rescued_pct",
             ]
         )
     else:
@@ -227,6 +235,7 @@ def run_task_count_success_experiment():
                 num_trials=("success", "size"),
                 success_rate_mean=("success", "mean"),
                 success_count=("success", "sum"),
+                tasks_rescued_pct=("tasks_rescued_pct", "mean"),
             )
             .sort_values(by="task_count")
             .reset_index(drop=True)
@@ -250,17 +259,17 @@ def run_task_count_success_experiment():
 def main():
     # Run 2-a, 2-b, and 2-c
 
-    # print("[2-a] Running hazard-count success experiment")
-    # hazard_summary_df, hazard_raw_df = run_hazard_count_success_experiment()
+    print("[2-a] Running hazard-count success experiment")
+    hazard_summary_df, hazard_raw_df = run_hazard_count_success_experiment()
 
-    # print("\n[2-a] Hazard-count success summary")
-    # print(hazard_summary_df)
+    print("\n[2-a] Hazard-count success summary")
+    print(hazard_summary_df)
 
-    # print("\n[2-b] Running p_f success experiment")
-    # pf_summary_df, pf_raw_df = run_pf_success_experiment()
+    print("\n[2-b] Running p_f success experiment")
+    pf_summary_df, pf_raw_df = run_pf_success_experiment()
 
-    # print("\n[2-b] p_f success summary")
-    # print(pf_summary_df)
+    print("\n[2-b] p_f success summary")
+    print(pf_summary_df)
 
     print("\n[2-c] Running task-count success experiment")
     task_summary_df, task_raw_df = run_task_count_success_experiment()
@@ -268,17 +277,20 @@ def main():
     print("\n[2-c] Task-count success summary")
     print(task_summary_df)
 
-    # if not hazard_raw_df.empty:
-    #     plot_hazard_count_success_boxplot(hazard_raw_df)
+    if not hazard_raw_df.empty:
+        plot_hazard_count_success_boxplot(hazard_raw_df)
+        plot_hazard_count_tasks_rescued_boxplot(hazard_raw_df)
 
-    # if not pf_raw_df.empty:
-    #     plot_pf_success_boxplot(pf_raw_df)
+    if not pf_raw_df.empty:
+        plot_pf_success_boxplot(pf_raw_df)
+        plot_pf_tasks_rescued_boxplot(pf_raw_df)
 
     if not task_raw_df.empty:
         plot_task_count_success_boxplot(task_raw_df)
+        plot_task_count_tasks_rescued_boxplot(task_raw_df)
 
-    # if not hazard_raw_df.empty or not pf_raw_df.empty or not task_raw_df.empty:
-    #     show_all_plots()
+    if not hazard_raw_df.empty or not pf_raw_df.empty or not task_raw_df.empty:
+        show_all_plots()
 
 
 if __name__ == "__main__":

@@ -146,12 +146,15 @@ MAP_TIME_FIG_FILENAME = "map_size_vs_time.png"
 
 SUCCESS_HAZARD_RAW_FILENAME = "hazard_count_vs_success_raw.csv"
 SUCCESS_HAZARD_FIG_FILENAME = "hazard_count_vs_success_boxplot.png"
+TASKS_RESCUED_HAZARD_FIG_FILENAME = "hazard_count_vs_tasks_rescued_boxplot.png"
 
 SUCCESS_PF_RAW_FILENAME = "pf_vs_success_raw.csv"
 SUCCESS_PF_FIG_FILENAME = "pf_vs_success_boxplot.png"
+TASKS_RESCUED_PF_FIG_FILENAME = "pf_vs_tasks_rescued_boxplot.png"
 
 SUCCESS_TASK_RAW_FILENAME = "task_count_vs_success_raw.csv"
 SUCCESS_TASK_FIG_FILENAME = "task_count_vs_success_boxplot.png"
+TASKS_RESCUED_TASK_FIG_FILENAME = "task_count_vs_tasks_rescued_boxplot.png"
 
 # -----------------------------
 # Helper functions

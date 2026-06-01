@@ -360,6 +360,12 @@ def run_single_experiment(
     objective_value = getattr(solution, "objective_value", None)
     success_rate = objective_value.get("group", None) if isinstance(objective_value, dict) else None
 
+    tasks_rescued_per_ep = np.zeros(parameters.E)
+    for i_r, r in enumerate(allocator.robots):
+        successful_r = path_planner.simulate_successful_episodes(solution.path[i_r])
+        tasks_rescued_per_ep += successful_r.astype(float) * len(r.S_r)
+    tasks_rescued_pct = float(np.mean(tasks_rescued_per_ep) / num_tasks * 100.0)
+
     return {
         "time_dict": {
             "setup_time": max(setup_wallclock, function_frame_time + allocator_setup_time),
@@ -368,6 +374,7 @@ def run_single_experiment(
         # "success": _extract_success(solution),
         # "success_rate": success_rate,
         "success": float(success_rate) if success_rate is not None else 0.0,
+        "tasks_rescued_pct": tasks_rescued_pct,
     }
 
 
