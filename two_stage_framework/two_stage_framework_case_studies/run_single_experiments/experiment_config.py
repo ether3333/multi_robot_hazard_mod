@@ -17,11 +17,13 @@ BASE_DIR = Path(__file__).resolve().parent
 RESULTS_DIR = BASE_DIR / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
 TABLES_DIR = RESULTS_DIR / "tables"
+TABLES_NEW_DIR = RESULTS_DIR / "tables_new"
 RAW_DIR = RESULTS_DIR / "raw"
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 TABLES_DIR.mkdir(parents=True, exist_ok=True)
+TABLES_NEW_DIR.mkdir(parents=True, exist_ok=True)
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 # -----------------------------
@@ -39,7 +41,10 @@ VERBOSE = True
 SHARED_SUCCESS_SEEDS = [0, 1, 2, 3, 4, 5, 6, 7] # modified to increase number of trials
 
 # Separate seeds for time experiments
-TIME_EXPERIMENT_SEEDS = [0]
+TIME_EXPERIMENT_SEEDS = [0, 1, 2, 3, 4, 5, 6, 7]
+
+# Separate seeds for map-size time means
+MAP_TIME_EXPERIMENT_SEEDS = TIME_EXPERIMENT_SEEDS
 
 # -----------------------------
 # Default environment settings
@@ -185,7 +190,7 @@ def get_map_time_fixed_config() -> dict:
         "num_tasks": MAP_TIME_FIXED_NUM_TASKS,
         "num_hazards": MAP_TIME_FIXED_NUM_HAZARDS,
         "p_f": MAP_TIME_FIXED_P_F,
-        "seeds": TIME_EXPERIMENT_SEEDS,
+        "seeds": MAP_TIME_EXPERIMENT_SEEDS,
         "map_ratio": MAP_SIZE_RATIO,
     }
 

@@ -5,14 +5,13 @@ import pandas as pd
 from experiment_config import (
     SAVE_RAW_DATA,
     SAVE_TABLES,
-    TABLES_DIR,
+    TABLES_NEW_DIR,
     RAW_DIR,
     TIME_TABLE_AGENT_COUNTS,
     TIME_TABLE_TASK_COUNTS,
     TIME_TABLE_SETUP_FILENAME,
     TIME_TABLE_CALC_FILENAME,
     MAP_TIME_RAW_FILENAME,
-    TIME_EXPERIMENT_SEEDS,
     DEFAULT_NUM_INITIAL_CONDITIONS,
     get_time_table_fixed_config,
     get_map_time_fixed_config,
@@ -98,8 +97,8 @@ def run_time_table_experiment():
     raw_df = pd.concat(raw_frames, ignore_index=True) if raw_frames else pd.DataFrame()
 
     if SAVE_TABLES:
-        setup_table.to_csv(TABLES_DIR / TIME_TABLE_SETUP_FILENAME)
-        calc_table.to_csv(TABLES_DIR / TIME_TABLE_CALC_FILENAME)
+        setup_table.to_csv(TABLES_NEW_DIR / TIME_TABLE_SETUP_FILENAME)
+        calc_table.to_csv(TABLES_NEW_DIR / TIME_TABLE_CALC_FILENAME)
 
     if SAVE_RAW_DATA and not raw_df.empty:
         raw_df.to_csv(RAW_DIR / "time_table_raw.csv", index=False)
@@ -149,6 +148,7 @@ def run_map_size_time_experiment():
                 "map_width",
                 "map_height",
                 "map_area",
+                "num_episodes",
                 "setup_time_mean",
                 "calculation_time_mean",
             ]
@@ -157,6 +157,7 @@ def run_map_size_time_experiment():
         summary_df = (
             raw_df.groupby(["map_scale", "map_width", "map_height", "map_area"], as_index=False)
             .agg(
+                num_episodes=("seed", "count"),
                 setup_time_mean=("setup_time", "mean"),
                 calculation_time_mean=("calculation_time", "mean"),
             )
@@ -168,7 +169,7 @@ def run_map_size_time_experiment():
         raw_df.to_csv(RAW_DIR / MAP_TIME_RAW_FILENAME, index=False)
 
     if SAVE_TABLES and not summary_df.empty:
-        summary_df.to_csv(TABLES_DIR / "map_size_time_summary.csv", index=False)
+        summary_df.to_csv(TABLES_NEW_DIR / "map_size_time_summary.csv", index=False)
 
     return summary_df, raw_df
 
