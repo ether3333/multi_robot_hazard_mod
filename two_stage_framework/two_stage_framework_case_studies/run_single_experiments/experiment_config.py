@@ -16,12 +16,14 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 RESULTS_DIR = BASE_DIR / "results"
 FIGURES_DIR = RESULTS_DIR / "figures"
+FIGURES_NEW_DIR = RESULTS_DIR / "figures_new"
 TABLES_DIR = RESULTS_DIR / "tables"
 TABLES_NEW_DIR = RESULTS_DIR / "tables_new"
 RAW_DIR = RESULTS_DIR / "raw"
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+FIGURES_NEW_DIR.mkdir(parents=True, exist_ok=True)
 TABLES_DIR.mkdir(parents=True, exist_ok=True)
 TABLES_NEW_DIR.mkdir(parents=True, exist_ok=True)
 RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -61,7 +63,7 @@ DEFAULT_MAP_RATIO = (1, 2)
 
 # Default hazard settings
 DEFAULT_NUM_HAZARDS = 1
-DEFAULT_P_F = 0.02
+DEFAULT_P_F = 0.012
 
 # Number of repeated initial conditions
 DEFAULT_NUM_INITIAL_CONDITIONS = 2
@@ -160,6 +162,8 @@ TASKS_RESCUED_PF_FIG_FILENAME = "pf_vs_tasks_rescued_boxplot.png"
 SUCCESS_TASK_RAW_FILENAME = "task_count_vs_success_raw.csv"
 SUCCESS_TASK_FIG_FILENAME = "task_count_vs_success_boxplot.png"
 TASKS_RESCUED_TASK_FIG_FILENAME = "task_count_vs_tasks_rescued_boxplot.png"
+MAP_TIME_NEW_FIG_FILENAME = "map_size_vs_time_new.png"
+TIME_TABLE_HEATMAP_FIG_FILENAME = "time_table_heatmaps.png"
 
 # -----------------------------
 # Helper functions
